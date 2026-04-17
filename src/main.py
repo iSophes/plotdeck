@@ -106,9 +106,11 @@ class app(QMainWindow):
 if __name__ == "__main__":
     QApp = QApplication()
     apply_stylesheet(QApp, "dark_teal.xml")
-
+    QApp.setStyleSheet(QApp.styleSheet())
     plotterApp = app()
     plotterApp.show()
+
+    
 
     sys.exit(QApp.exec())
     
