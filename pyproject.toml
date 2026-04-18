@@ -15,7 +15,7 @@ authors = [
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.15.10",
+    "ruff>=0.15.11",
     "pyinstaller>=6.19.0",
 ]
 
