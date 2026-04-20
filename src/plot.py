@@ -4,11 +4,18 @@ class Plot:
         self._cues = [
             {"cueName": "lighting", "message": "test", "timeStamp": "00:00.00"}
         ]
+        self._name = ""
         self._trackOrder = trackOrder or 0
 
     def setTrack(self, trackPath):
         self._trackPath = trackPath
         # update signals
+
+    def setName(self, name):
+        self._name = name
+    
+    def getName(self):
+        return self._name
 
     def getTrack(self):
         return self._trackPath

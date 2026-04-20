@@ -10,7 +10,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 from ui.plotsExplorer import plotExplorer
-
+import fileHandler
+import sys
 
 def set_z_order(widget, order: str):
     """order: 'raise', 'lower', or int index"""
@@ -45,6 +46,11 @@ class home(QWidget):
         self.isPaused = not self.isPaused
         self.pauseButton.setText(self.isPaused and "PLAY" or "PAUSE")
         
+    def requestFiles(self):
+        fileHandler.ImportFiles(self, self.explorer)
+
+    def exit(self):
+        sys.exit(0)
 
     def __init__(self, parentWindow):
         super().__init__()
@@ -78,14 +84,18 @@ class home(QWidget):
             }
         """)
 
-        fileMenu = self.topbar.addMenu("File")
+        fileMenu = self.topbar.addMenu("&File")
 
         newProject = QAction("New Project", parentWindow)
         openProject = QAction("Open Project", parentWindow)
 
         importTrack = QAction("Import Track", parentWindow)
+        importTrack.triggered.connect(self.requestFiles)
         
         settings = QAction("Settings", parentWindow)
+
+        exit = QAction("Exit", parentWindow)
+        exit.triggered.connect(self.exit)
 
         fileMenu.addAction(newProject)
         fileMenu.addAction(openProject)
@@ -93,6 +103,9 @@ class home(QWidget):
         fileMenu.addAction(importTrack)
         fileMenu.addSeparator()
         fileMenu.addAction(settings)
+        fileMenu.addSeparator()
+        fileMenu.addAction(exit)
+
         # Our main buttons
 
         self.goButton = QPushButton(parent=self, text="GO")

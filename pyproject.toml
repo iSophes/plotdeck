@@ -5,9 +5,10 @@ description = "App that lets you load tracks in and plot cues simply."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "librosa>=0.11.0",
     "pyside6>=6.11.0",
     "python-vlc>=3.0.21203",
-    "qt-material>=2.17"
+    "qt-material>=2.17",
 ]
 authors = [
     {name = "Sophie B", email = "contact@isophes.com"}
