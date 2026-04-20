@@ -110,7 +110,7 @@ class app(QMainWindow):
         self.resize(screensize * 0.85)
         self.showMaximized()
 
-        self.homeScreen = home.home()
+        self.homeScreen = home.home(self)
         self.setCentralWidget(self.homeScreen)
 
 

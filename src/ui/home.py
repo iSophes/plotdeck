@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction
 from ui.plotsExplorer import plotExplorer
 
 
@@ -29,10 +30,26 @@ def set_z_order(widget, order: str):
 
 class home(QWidget):
     def PressGo(self):
+        self.goButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.pauseButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.pauseButton.setFocus()
         print("GO!")
 
-    def __init__(self):
+    def Reset(self):
+        self.goButton.setFocus()
+        self.goButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.pauseButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        print("RESET!")
+
+    def PressPause(self):
+        self.isPaused = not self.isPaused
+        self.pauseButton.setText(self.isPaused and "PLAY" or "PAUSE")
+        
+
+    def __init__(self, parentWindow):
         super().__init__()
+
+        self.isPaused = False
 
         # Layouts to position everything nicely
         self.mainLayout = QVBoxLayout(self)
@@ -50,6 +67,32 @@ class home(QWidget):
 
         # Topbar
 
+        self.topbar = parentWindow.menuBar()
+        self.topbar.setStyleSheet(self.topbar.styleSheet() + """ \
+            QMenu::item:selected {
+                background-color: #646c75;
+            }
+                                  
+            QMenuBar::item:selected {
+                background-color: #646c75;
+            }
+        """)
+
+        fileMenu = self.topbar.addMenu("File")
+
+        newProject = QAction("New Project", parentWindow)
+        openProject = QAction("Open Project", parentWindow)
+
+        importTrack = QAction("Import Track", parentWindow)
+        
+        settings = QAction("Settings", parentWindow)
+
+        fileMenu.addAction(newProject)
+        fileMenu.addAction(openProject)
+        fileMenu.addSeparator()
+        fileMenu.addAction(importTrack)
+        fileMenu.addSeparator()
+        fileMenu.addAction(settings)
         # Our main buttons
 
         self.goButton = QPushButton(parent=self, text="GO")
@@ -58,32 +101,36 @@ class home(QWidget):
             existing_style + "font-size: 100pt; font-family: Inter;"
         )
         self.goButton.setFixedSize(420, 175)
+        self.goButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.goButton.clicked.connect(self.PressGo)
 
         # Action buttons under go
 
         self.pauseButton = QPushButton(parent=self, text="Pause")
-        self.pauseButton.setStyleSheet(
-            existing_style + "font-size: 13pt; font-family: Inter;"
-        )
+        self.pauseButton.setStyleSheet(existing_style + "font-size: 13pt;")
         self.pauseButton.setFixedSize(100, 100)
+        self.pauseButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.pauseButton.pressed.connect(self.PressPause)
 
         self.restartButton = QPushButton(parent=self, text="Restart")
         self.restartButton.setStyleSheet(
-            existing_style + "font-size: 11pt; font-family: Inter;"
+            existing_style + "font-size: 13pt; padding-left: 4pt; padding-right: 4pt;"
         )
         self.restartButton.setFixedSize(100, 100)
+        self.restartButton.setContentsMargins(0, 0, 0, 0)
+        self.restartButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         self.skipButton = QPushButton(parent=self, text="Skip")
-        self.skipButton.setStyleSheet(
-            existing_style + "font-size: 13pt; font-family: Inter;"
-        )
+        self.skipButton.setStyleSheet(existing_style + "font-size: 13pt;")
         self.skipButton.setFixedSize(100, 100)
+        self.skipButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         self.resetButton = QPushButton(parent=self, text="Reset")
-        self.resetButton.setStyleSheet(
-            existing_style + "font-size: 13pt; font-family: Inter;"
-        )
+        self.resetButton.setStyleSheet(existing_style + "font-size: 13pt;")
         self.resetButton.setFixedSize(100, 100)
+        self.resetButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.resetButton.clicked.connect(self.Reset)
+
 
         # Side bar with plots
 
