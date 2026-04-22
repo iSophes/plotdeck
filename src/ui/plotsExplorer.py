@@ -1,6 +1,6 @@
 # Side bar that shows plots (shown as their file, but will refer to the plot object)
 from math import floor
-import librosa
+import vlc
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -17,9 +17,11 @@ from PySide6.QtCore import (
     Qt
 )
 
-def get_audio_duration(file_path):
-    audio_data, sample_rate = librosa.load(file_path)
-    duration = librosa.get_duration(y=audio_data, sr=sample_rate)
+def get_audio_duration(file_path: str):
+    loadedMedia = vlc.Media(file_path)
+    loadedMedia.parse()
+    duration = loadedMedia.get_duration() / 1000
+    loadedMedia.release()
     return duration
 
 class plotExplorer(QWidget):
@@ -74,13 +76,11 @@ class plotExplorer(QWidget):
             lengthOfTrack = QLabel(f"{get_audio_duration(self.getPlots()[i].getTrack()):.2f}")
             lengthOfTrack.setStyleSheet("QLabel {font-size: 10pt; color: #ffffff}")
             lengthOfTrack.setWordWrap(True)
-            lengthOfTrack.setAlignment(Qt.AlignmentFlag.AlignRight, Qt.AlignmentFlag.AlignVCenter)
+            lengthOfTrack.setAlignment(Qt.AlignmentFlag.AlignRight)
 
             buttonLayout.addWidget(label)
             buttonLayout.addSpacing(1)
             buttonLayout.addWidget(lengthOfTrack)
-
-
 
             self.baseContainerLayout.addWidget(button)
             

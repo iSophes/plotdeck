@@ -7,44 +7,32 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QLabel,
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QAction, QIcon, QPixmap, QPainter
 from ui.plotsExplorer import plotExplorer
 import fileHandler
 import sys
 
-def set_z_order(widget, order: str):
-    """order: 'raise', 'lower', or int index"""
-    if order == "raise":
-        widget.raise_()
-    elif order == "lower":
-        widget.lower()
-    elif isinstance(order, int):
-        parent = widget.parent()
-        if parent:
-            siblings = parent.children()
-            siblings.remove(widget)
-            siblings.insert(order, widget)
-            for w in siblings:
-                w.raise_()
-
+def make_greyed(pixmap):
+    grey = QPixmap(pixmap.size())
+    grey.fill(Qt.transparent)
+    painter = QPainter(grey)
+    painter.setOpacity(0.3)
+    painter.drawPixmap(0, 0, pixmap)
+    painter.end()
+    return grey
 
 class home(QWidget):
-    def PressGo(self):
-        self.goButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.pauseButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.pauseButton.setFocus()
-        print("GO!")
+    def PressPlay(self):
+        self.isPaused = not self.isPaused
+        self.playbackButton.setFocus()
+        self.playbackButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        print("toggle")
 
     def Reset(self):
-        self.goButton.setFocus()
-        self.goButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.pauseButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.loadedTrack = False
+        self.playbackButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         print("RESET!")
-
-    def PressPause(self):
-        self.isPaused = not self.isPaused
-        self.pauseButton.setText(self.isPaused and "PLAY" or "PAUSE")
         
     def requestFiles(self):
         fileHandler.ImportFiles(self, self.explorer)
@@ -55,7 +43,8 @@ class home(QWidget):
     def __init__(self, parentWindow):
         super().__init__()
 
-        self.isPaused = False
+        self.isPaused = True
+        self.loadedTrack = False
 
         # Layouts to position everything nicely
         self.mainLayout = QVBoxLayout(self)
@@ -70,6 +59,11 @@ class home(QWidget):
         self.tracksSection = QVBoxLayout()
         self.mainLayout.addLayout(self.leftWidget)
         self.mainLayout.addLayout(self.footerBox)
+
+        self.playbackIcon = QIcon()
+        self.playbackIcon.addPixmap(QPixmap("src/icons/play.svg"), QIcon.Normal, QIcon.State.Off)
+        self.playbackIcon.addPixmap(make_greyed(QPixmap("src/icons/play.svg")), QIcon.Disabled, QIcon.State.Off)
+        self.playbackIcon.addPixmap(QPixmap("src/icons/pause.svg"), QIcon.Normal, QIcon.State.On)
 
         # Topbar
 
@@ -108,22 +102,24 @@ class home(QWidget):
 
         # Our main buttons
 
-        self.goButton = QPushButton(parent=self, text="GO")
-        existing_style = self.goButton.styleSheet()
-        self.goButton.setStyleSheet(
-            existing_style + "font-size: 100pt; font-family: Inter;"
-        )
-        self.goButton.setFixedSize(420, 175)
-        self.goButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.goButton.clicked.connect(self.PressGo)
+        self.playbackButton = QPushButton(parent=self)
+        self.playbackButton.setFixedSize(420, 175)
+        self.playbackButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.playbackButton.setEnabled(True)
+        self.playbackButton.clicked.connect(self.PressPlay)
+        self.playbackButton.setCheckable(True)
+        self.playbackButton.setIcon(self.playbackIcon)
+        self.playbackButton.setIconSize(QSize(110, 110))
+
+        existing_style = self.playbackButton.styleSheet()
 
         # Action buttons under go
 
-        self.pauseButton = QPushButton(parent=self, text="Pause")
-        self.pauseButton.setStyleSheet(existing_style + "font-size: 13pt;")
-        self.pauseButton.setFixedSize(100, 100)
-        self.pauseButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.pauseButton.pressed.connect(self.PressPause)
+        self.previousButton = QPushButton(parent=self, text="Previous")
+        self.previousButton.setStyleSheet(existing_style + "font-size: 13pt;")
+        self.previousButton.setFixedSize(100, 100)
+        self.previousButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.previousButton.pressed.connect(self.PressPlay)
 
         self.restartButton = QPushButton(parent=self, text="Restart")
         self.restartButton.setStyleSheet(
@@ -143,7 +139,6 @@ class home(QWidget):
         self.resetButton.setFixedSize(100, 100)
         self.resetButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.resetButton.clicked.connect(self.Reset)
-
 
         # Side bar with plots
 
@@ -191,12 +186,12 @@ class home(QWidget):
             self.madeWithLove.styleSheet() + "font-family: Inter"
         )
 
+        self.actionsSection.addWidget(self.previousButton)
         self.actionsSection.addWidget(self.restartButton)
-        self.actionsSection.addWidget(self.pauseButton)
         self.actionsSection.addWidget(self.skipButton)
         self.actionsSection.addWidget(self.resetButton)
 
-        self.leftWidget.addWidget(self.goButton)
+        self.leftWidget.addWidget(self.playbackButton)
         self.leftWidget.addLayout(self.actionsSection)
         self.leftWidget.addWidget(self.explorer.scroller)
 

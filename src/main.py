@@ -130,7 +130,8 @@ if __name__ == "__main__":
 
         QLabel {
             font-family: Inter;
-        }         
+        }  
+      
     """
         + QApp.styleSheet()
     )
