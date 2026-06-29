@@ -1,19 +1,19 @@
+import os
+import platform
+import sys
+import webbrowser
+
+from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QApplication,
-    QPushButton,
+    QHBoxLayout,
     QLabel,
     QMainWindow,
-    QHBoxLayout,
+    QPushButton,
     QVBoxLayout,
     QWidget,
 )
-from PySide6.QtCore import QSize
 from qt_material import apply_stylesheet
-
-import sys
-import os
-import platform
-import webbrowser
 
 from ui import home
 
@@ -104,7 +104,7 @@ class app(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Cue Plotter")
+        self.setWindowTitle("PlotDeck")
         screensize: QSize = self.screen().size() * self.screen().devicePixelRatio()
 
         self.resize(screensize * 0.85)
@@ -123,15 +123,15 @@ if __name__ == "__main__":
             font-family: 'Inter';
             src: fonts/inter.ttf;
         }
-                       
+
         QPushButton {
             font-family: Inter;
-        }   
+        }
 
         QLabel {
             font-family: Inter;
-        }  
-      
+        }
+
     """
         + QApp.styleSheet()
     )

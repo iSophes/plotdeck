@@ -1,21 +1,19 @@
 # Side bar that shows plots (shown as their file, but will refer to the plot object)
 from math import floor
+
 import vlc
-
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QWidget,
-    QScrollArea,
-    QVBoxLayout,
-    QHBoxLayout,
-    QPushButton,
     QFrame,
-    QSizePolicy,
+    QHBoxLayout,
     QLabel,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
 )
 
-from PySide6.QtCore import (
-    Qt
-)
 
 def get_audio_duration(file_path: str):
     loadedMedia = vlc.Media(file_path)
@@ -23,6 +21,7 @@ def get_audio_duration(file_path: str):
     duration = loadedMedia.get_duration() / 1000
     loadedMedia.release()
     return duration
+
 
 class plotExplorer(QWidget):
     def getPlots(self):
@@ -38,7 +37,7 @@ class plotExplorer(QWidget):
 
         if available == self._lastAvailable and not override:
             return
-        
+
         while self.baseContainerLayout.count():
             self.baseContainerLayout.takeAt(0).widget().deleteLater()
 
@@ -50,14 +49,24 @@ class plotExplorer(QWidget):
         for i in range(count):
             shouldHover = self.getPlots()[i] if i < len(self.getPlots()) else False
             if shouldHover:
-                shouldHover = True # I know, it just keeps state nice as a boolean
+                shouldHover = True  # I know, it just keeps state nice as a boolean
 
-            text = shouldHover and ((self.getPlots()[i].getName() != "" and self.getPlots()[i].getName()) or self.getPlots()[i].getTrack()) or ""
+            text = (
+                shouldHover
+                and (
+                    (
+                        self.getPlots()[i].getName() != ""
+                        and self.getPlots()[i].getName()
+                    )
+                    or self.getPlots()[i].getTrack()
+                )
+                or ""
+            )
             button = QPushButton(text="")
             button.setFixedHeight(box_height)
             button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             button.setStyleSheet(
-                f"QPushButton {{ font-size: 10pt; color: #ffffff; background-color: {"#495158" if even else "#343c44"}; border-width: 0; }} {shouldHover and "QPushButton:hover { background-color: #8697a4; }"}"
+                f"QPushButton {{ font-size: 10pt; color: #ffffff; background-color: {'#495158' if even else '#343c44'}; border-width: 0; }} {shouldHover and 'QPushButton:hover { background-color: #8697a4; }'}"
             )
 
             even = not even
@@ -73,7 +82,19 @@ class plotExplorer(QWidget):
             label.setStyleSheet("QLabel {font-size: 10pt; color: #ffffff}")
             label.setWordWrap(True)
 
-            lengthOfTrack = QLabel(f"{get_audio_duration(self.getPlots()[i].getTrack()):.2f}")
+            durationInSecs = float(
+                f"{get_audio_duration(self.getPlots()[i].getTrack()):.2f}"
+            )
+
+            formattedDurationInMins = floor(float(durationInSecs) / 60)
+            formattedDurationInSecs = floor(float(durationInSecs) % 60)
+
+            if formattedDurationInSecs < 10:
+                formattedDurationInSecs = f"0{formattedDurationInSecs}"
+
+            lengthOfTrack = QLabel(
+                f"{formattedDurationInMins}:{formattedDurationInSecs}"
+            )
             lengthOfTrack.setStyleSheet("QLabel {font-size: 10pt; color: #ffffff}")
             lengthOfTrack.setWordWrap(True)
             lengthOfTrack.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -83,7 +104,6 @@ class plotExplorer(QWidget):
             buttonLayout.addWidget(lengthOfTrack)
 
             self.baseContainerLayout.addWidget(button)
-            
 
     def __init__(self):
         super().__init__()
@@ -91,10 +111,13 @@ class plotExplorer(QWidget):
         self.scroller = QScrollArea()
         self.scroller.setWidgetResizable(True)
         self.scroller.setFixedWidth(420)
-        self.scroller.resizeEvent = lambda e: (super(QScrollArea, self.scroller).resizeEvent(e), self.populate(False))
+        self.scroller.resizeEvent = lambda e: (
+            super(QScrollArea, self.scroller).resizeEvent(e),
+            self.populate(False),
+        )
         self._plots = []
         self._lastAvailable = 0
-        
+
         self.baseContainer = QFrame()
 
         self.baseContainerLayout = QVBoxLayout(self.baseContainer)
