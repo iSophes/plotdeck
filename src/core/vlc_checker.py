@@ -17,10 +17,10 @@ class vlc_popup(QtWidgets.QWidget):
         self.setFixedSize(POPUP_WIDTH, POPUP_HEIGHT)
         self.setWindowTitle("PlotDeck")
 
-        self.mainLayout = QtWidgets.QVBoxLayout()
+        self.mainLayout: QtWidgets.QVBoxLayout = QtWidgets.QVBoxLayout()
         self.setLayout(self.mainLayout)
 
-        self.subButtonLayout = QtWidgets.QHBoxLayout()
+        self.subButtonLayout: QtWidgets.QHBoxLayout = QtWidgets.QHBoxLayout()
 
         textLabel = QtWidgets.QLabel(
             "To run this, you need to have VLC Media Player Installed. Click below to be sent to a download link."
@@ -29,12 +29,12 @@ class vlc_popup(QtWidgets.QWidget):
 
         downloadButton = QtWidgets.QPushButton("Download")
         downloadButton.setFixedSize(144, 42)
-        downloadButton.clicked.connect(self.redirect)
+        _ = downloadButton.clicked.connect(self.redirect)
         self.subButtonLayout.addWidget(downloadButton)
 
         restartButton = QtWidgets.QPushButton("Restart")
         restartButton.setFixedSize(144, 42)
-        restartButton.clicked.connect(self.restart)
+        _ = restartButton.clicked.connect(self.restart)
         self.subButtonLayout.addWidget(restartButton)
 
         self.mainLayout.addLayout(self.subButtonLayout)
@@ -44,7 +44,7 @@ class vlc_popup(QtWidgets.QWidget):
 
     def restart(self):
         args = sys.argv[1:] if getattr(sys, "frozen", False) else sys.argv
-        QtCore.QProcess.startDetached(sys.executable, args)
+        _ = QtCore.QProcess.startDetached(sys.executable, args)
         QtWidgets.QApplication.quit()  # clean shutdown, no thread warnings
 
 

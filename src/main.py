@@ -17,12 +17,6 @@ def main():
 
     _main_ui = main_ui(app_window)
     app_track_handler = TrackHandler()
-    app_track_handler.add_track("A")
-    app_track_handler.add_track("B")
-    app_track_handler.add_track("C", 1)
-    app_track_handler.add_track("D")
-    app_track_handler.add_track("E", 1)
-    app_track_handler.add_track("F", 1)
 
     sys.exit(app.exec())  # Close the app when we want it to close.
 
