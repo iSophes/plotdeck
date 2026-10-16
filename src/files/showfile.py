@@ -2,8 +2,10 @@
 import json
 
 from PySide6.QtWidgets import QFileDialog
+from typing_extensions import TypedDict
 
 from core.error_popup import error_popup
+from tracks.track_handler import TrackHandler
 
 
 def get_showfile():
@@ -15,12 +17,28 @@ def get_showfile():
     )
 
 
-def handle_decoded_file(data):
-    print(data)
+def handle_decoded_file(data, track_handler: TrackHandler):
+    if not "com.isophes.plotdeck.valid_showfile" in data:
+        error_popup("Not a valid showfile!")
+        return False
+
+    if not "files" in data:
+        error_popup("Not a valid showfile!")
+        return False
+
+    for file in data["files"]:
+        # file goes in structure
+        index: int | None = None
+        if "index" in file:
+            index = int(file["index"])
+
+        track_handler.add_track(file["path"], index)
+        continue
+
     return True
 
 
-def open_showfile():
+def open_showfile(track_handler: TrackHandler):
     showfile, _ = get_showfile()
     if not showfile:
         return False
@@ -29,7 +47,7 @@ def open_showfile():
         with open(file) as f:
             try:
                 loaded = json.load(f)
-                return handle_decoded_file(loaded)
+                return handle_decoded_file(loaded, track_handler)
 
             except json.JSONDecodeError:
                 error_popup("Failed to decode file!")

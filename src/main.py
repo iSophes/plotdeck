@@ -18,8 +18,8 @@ def main():
 
     _main_ui = main_ui(app_window)
     app_track_handler = TrackHandler()
-
-    print(open_showfile())
+    _ = open_showfile(app_track_handler)
+    app_track_handler.play_track(0)
 
     sys.exit(app.exec())  # Close the app when we want it to close.
 
