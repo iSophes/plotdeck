@@ -1,17 +1,20 @@
-from PySide6.QtWidgets import (
-    QWidget,
-    QHBoxLayout,
-    QVBoxLayout,
-    QPushButton,
-    QFrame,
-    QSizePolicy,
-    QLabel,
-)
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QAction, QIcon, QPixmap, QPainter
-from ui.plotsExplorer import plotExplorer
-import fileHandler
 import sys
+
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QAction, QIcon, QPainter, QPixmap
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
+
+import fileHandler
+from ui.plotsExplorer import plotExplorer
+
 
 def make_greyed(pixmap):
     grey = QPixmap(pixmap.size())
@@ -21,6 +24,7 @@ def make_greyed(pixmap):
     painter.drawPixmap(0, 0, pixmap)
     painter.end()
     return grey
+
 
 class home(QWidget):
     def PressPlay(self):
@@ -33,7 +37,7 @@ class home(QWidget):
         self.loadedTrack = False
         self.playbackButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         print("RESET!")
-        
+
     def requestFiles(self):
         fileHandler.ImportFiles(self, self.explorer)
 
@@ -61,22 +65,31 @@ class home(QWidget):
         self.mainLayout.addLayout(self.footerBox)
 
         self.playbackIcon = QIcon()
-        self.playbackIcon.addPixmap(QPixmap("src/icons/play.svg"), QIcon.Normal, QIcon.State.Off)
-        self.playbackIcon.addPixmap(make_greyed(QPixmap("src/icons/play.svg")), QIcon.Disabled, QIcon.State.Off)
-        self.playbackIcon.addPixmap(QPixmap("src/icons/pause.svg"), QIcon.Normal, QIcon.State.On)
+        self.playbackIcon.addPixmap(
+            QPixmap("src/icons/play.svg"), QIcon.Normal, QIcon.State.Off
+        )
+        self.playbackIcon.addPixmap(
+            make_greyed(QPixmap("src/icons/play.svg")), QIcon.Disabled, QIcon.State.Off
+        )
+        self.playbackIcon.addPixmap(
+            QPixmap("src/icons/pause.svg"), QIcon.Normal, QIcon.State.On
+        )
 
         # Topbar
 
         self.topbar = parentWindow.menuBar()
-        self.topbar.setStyleSheet(self.topbar.styleSheet() + """ \
+        self.topbar.setStyleSheet(
+            self.topbar.styleSheet()
+            + """ \
             QMenu::item:selected {
                 background-color: #646c75;
             }
-                                  
+
             QMenuBar::item:selected {
                 background-color: #646c75;
             }
-        """)
+        """
+        )
 
         fileMenu = self.topbar.addMenu("&File")
 
@@ -85,7 +98,7 @@ class home(QWidget):
 
         importTrack = QAction("Import Track", parentWindow)
         importTrack.triggered.connect(self.requestFiles)
-        
+
         settings = QAction("Settings", parentWindow)
 
         exit = QAction("Exit", parentWindow)

@@ -1,141 +1,19 @@
-import os
-import platform
 import sys
-import webbrowser
 
-from PySide6.QtCore import QSize
-from PySide6.QtWidgets import (
-    QApplication,
-    QHBoxLayout,
-    QLabel,
-    QMainWindow,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
-from qt_material import apply_stylesheet
+from PySide6 import QtWidgets
 
-from ui import home
-
-# Check if we have VLC media before ANYTHING
+from core import main_window
+from core.vlc_checker import check_vlc
 
 
-class vlcPopupBox(QMainWindow):
-    def __init__(self):
-        super().__init__()
+def main():
+    if not check_vlc():  # We need VLC before anything!
+        return
 
-        self.setWindowTitle("Cue Plotter")
-        self.resize(600, 100)
-
-        self.setMaximumWidth(570)
-        self.setMaximumHeight(100)
-
-        self.setMinimumWidth(570)
-        self.setMinimumHeight(100)
-
-        self._setup_ui()
-
-    def _setup_ui(self):
-        self.box = temporaryBoxUI()
-        self.setCentralWidget(self.box)
-
-
-class temporaryBoxUI(QWidget):
-    def redirect(self):
-        return webbrowser.open("https://www.videolan.org/")
-
-    def restart(self):
-        os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
-
-    def __init__(self):
-        super().__init__()
-
-        self.mainLayout = QVBoxLayout()
-        self.setLayout(self.mainLayout)
-
-        self.subButtonLayout = QHBoxLayout()
-
-        textLabel = QLabel(
-            "To run this, you need to have VLC Media Player Installed. Click below to be sent to a download link."
-        )
-        self.mainLayout.addWidget(textLabel)
-
-        downloadButton = QPushButton(parent=self, text="Download")
-        downloadButton.setFixedSize(144, 42)
-        downloadButton.clicked.connect(self.redirect)
-        self.subButtonLayout.addWidget(downloadButton)
-
-        restartButton = QPushButton(parent=self, text="Restart")
-        restartButton.setFixedSize(144, 42)
-        restartButton.clicked.connect(self.restart)
-        self.subButtonLayout.addWidget(restartButton)
-
-        self.mainLayout.addLayout(self.subButtonLayout)
-
-
-def vlc_exists():
-    system = platform.system()
-    paths = []
-    if system == "Windows":
-        paths = [
-            r"C:\Program Files\VideoLAN\VLC\vlc.exe",
-            r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe",
-        ]
-    elif system == "Darwin":  # macOS
-        paths = ["/Applications/VLC.app/Contents/MacOS/VLC"]
-    else:  # Linux/Unix
-        paths = ["/usr/bin/vlc", "/usr/local/bin/vlc"]
-
-    return any(os.path.exists(p) for p in paths)
-
-
-if not vlc_exists():
-    App = QApplication(sys.argv)
-    apply_stylesheet(App, "dark_teal.xml")
-    box = vlcPopupBox()
-    box.show()
-
-    sys.exit(App.exec())
-
-# Now we can run our application.
-
-
-class app(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-        self.setWindowTitle("PlotDeck")
-        screensize: QSize = self.screen().size() * self.screen().devicePixelRatio()
-
-        self.resize(screensize * 0.85)
-        self.showMaximized()
-
-        self.homeScreen = home.home(self)
-        self.setCentralWidget(self.homeScreen)
+    app = QtWidgets.QApplication([])  # Begin!
+    app_window = main_window.Window(app)
+    sys.exit(app.exec())  # Close the app when we want it to close.
 
 
 if __name__ == "__main__":
-    QApp = QApplication()
-    apply_stylesheet(QApp, "dark_teal.xml")
-    QApp.setStyleSheet(
-        """
-        @font-face {
-            font-family: 'Inter';
-            src: fonts/inter.ttf;
-        }
-
-        QPushButton {
-            font-family: Inter;
-        }
-
-        QLabel {
-            font-family: Inter;
-        }
-
-    """
-        + QApp.styleSheet()
-    )
-    plotterApp = app()
-    plotterApp.show()
-
-    sys.exit(QApp.exec())
+    main()
