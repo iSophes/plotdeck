@@ -1,7 +1,7 @@
 import os
 import sys
 import webbrowser
-from platform import platform, system, system_alias
+from platform import system
 
 from PySide6 import QtCore, QtWidgets
 from qt_material import apply_stylesheet
