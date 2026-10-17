@@ -11,7 +11,7 @@ POPUP_HEIGHT = 130
 
 
 class vlc_popup(QtWidgets.QWidget):
-    def __init__(self, app):
+    def __init__(self, app: QtWidgets.QApplication):
         super().__init__()
 
         self.setFixedSize(POPUP_WIDTH, POPUP_HEIGHT)
@@ -68,7 +68,7 @@ def check_vlc():
     if vlc_exists():
         return True
 
-    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
+    app: QtWidgets.QApplication = QtWidgets.QApplication(sys.argv)
     apply_stylesheet(app, "dark_teal.xml")
     popup = vlc_popup(app)
     popup.show()
