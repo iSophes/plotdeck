@@ -27,10 +27,16 @@ class TopBar:
 
         file_menu = menu_bar.addMenu("&File")
 
+        load_track_action = QAction("Load Track", parent=window)
+        _ = load_track_action.triggered.connect(self.import_track)
+        file_menu.addAction(load_track_action)
+
         load_showfile_action = QAction("Open Showfile", parent=window)
         file_menu.addAction(load_showfile_action)
-
         _ = load_showfile_action.triggered.connect(self.load_showfile)
+
+    def import_track(self):
+        self._track_handler.import_tracks()
 
     def load_showfile(self):
         _ = open_showfile(self._track_handler)

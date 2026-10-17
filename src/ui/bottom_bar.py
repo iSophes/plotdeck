@@ -23,7 +23,7 @@ class bottom_bar:
             "PlotDeck | Nothing Loaded", Qt.AlignmentFlag.AlignCenter
         )
         self._love: QLabel = self._make_label(
-            "PlotDeck | Nothing Loaded", Qt.AlignmentFlag.AlignRight
+            "Made with ❤️ by Sophie", Qt.AlignmentFlag.AlignRight
         )
 
         self.widget.setLayout(self.box)
