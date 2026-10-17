@@ -20,10 +20,6 @@ class main_ui(QWidget):
         main_layout.setContentsMargins(5, 5, 5, 5)
         main_layout.setSpacing(0)
 
-        self.widget_layout: QHBoxLayout = QHBoxLayout()
-
-        main_layout.addLayout(self.widget_layout, stretch=1)
-
         self.create_footer()
         main_layout.addWidget(self._left_column)
         window.setCentralWidget(self)
