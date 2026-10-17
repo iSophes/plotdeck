@@ -2,7 +2,6 @@
 import json
 
 from PySide6.QtWidgets import QFileDialog
-from typing_extensions import TypedDict
 
 from core.error_popup import error_popup
 from tracks.track_handler import TrackHandler

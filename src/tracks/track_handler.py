@@ -19,4 +19,7 @@ class TrackHandler:
         self._tracks.insert(index, Track(path))
 
     def play_track(self, track_id: int):
+        if track_id > len(self._tracks) - 1:
+            return
+
         self._tracks[track_id].play_track(self._audio_handler)
