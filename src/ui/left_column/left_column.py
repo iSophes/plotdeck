@@ -1,13 +1,17 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QDockWidget, QHBoxLayout, QVBoxLayout, QWidget
 
 from ui.left_column.play_button import PlayButton
 from ui.left_column.square_button import PlaybackButtonType, SquareButton
 
 
-class LeftColumn:
+class LeftColumn(QWidget):
     def __init__(self):
-        self.layout: QVBoxLayout = QVBoxLayout()  # Our left column is a VBox
+        super().__init__()
+        self.dock_layout: QVBoxLayout = QVBoxLayout(self)
+
+        self.play_button: PlayButton = PlayButton()
+        self.dock_layout.addWidget(self.play_button.button)  # Put go button in
 
         self.media_layout: QHBoxLayout = QHBoxLayout()
         self.playbacks: list[SquareButton] = [
@@ -20,11 +24,10 @@ class LeftColumn:
         for button in self.playbacks:
             self.media_layout.addWidget(button.button)
 
-        self.play_button: PlayButton = PlayButton()
-
-        self.layout.addWidget(self.play_button.button)  # Put go button in
-        self.layout.addLayout(self.media_layout)  # Put media controls after our HBox
-        self.layout.setAlignment(
+        self.dock_layout.addLayout(
+            self.media_layout
+        )  # Put media controls after our HBox
+        self.dock_layout.setAlignment(
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         )  # align it where we want
 
