@@ -3,7 +3,6 @@ from PySide6.QtWidgets import QFileDialog
 from core.audio import AudioHandler
 from core.signal import Signal
 from tracks.track import Track
-from ui.left_column.track_column.track_frame import TrackFrame
 
 CREATE_TRACK_SIGNAL = Signal()
 
@@ -21,7 +20,7 @@ class TrackHandler:
     def __init__(self):
         self._tracks: list[Track] = []
         self._paths: list[str] = []
-        self.selected_track_id: int = 0  # track id
+        self._selected_track_id: int = 0  # track id
         self._audio_handler: AudioHandler = AudioHandler()
 
     def get_tracks(self):
@@ -57,3 +56,6 @@ class TrackHandler:
 
         for track in usable_tracks:
             self.add_track(track)
+
+    def get_current_selection(self):
+        return self._selected_track_id
