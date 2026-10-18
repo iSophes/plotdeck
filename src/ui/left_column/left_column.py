@@ -2,6 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 from tracks import track_handler
+from tracks.track import Track
 from ui.left_column.play_button import PlayButton
 from ui.left_column.square_button import PlaybackButtonType, SquareButton
 from ui.left_column.track_column import track_frame
@@ -27,7 +28,7 @@ class LeftColumn(QWidget):
             self.media_layout.addWidget(button.button)
 
         self.track_frame: track_frame.TrackFrame = track_frame.TrackFrame()
-        _ = track_handler.CREATE_TRACK_SIGNAL.connect(self.create_track)
+        _ = track_handler.TRACK_ADDED.connect(self.create_track)
 
         self.dock_layout.addLayout(self.media_layout)
         self.dock_layout.addWidget(self.track_frame.scroller)
@@ -37,5 +38,5 @@ class LeftColumn(QWidget):
 
         self.play_button.disable()
 
-    def create_track(self, path: str):
-        self.track_frame.add_option(path, 0)
+    def create_track(self, track: Track, index: int):
+        self.track_frame.add_option(track, index)

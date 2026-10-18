@@ -5,7 +5,7 @@ from core.audio import AudioHandler
 from core.signal import Signal
 from tracks.track import Track
 
-CREATE_TRACK_SIGNAL = Signal()
+TRACK_ADDED: Signal[[Track, int]] = Signal()
 
 
 def GetTrackFiles():
@@ -20,51 +20,47 @@ def GetTrackFiles():
 class TrackHandler:
     def __init__(self):
         self._tracks: list[Track] = []
-        self._paths: list[str] = []
         self._audio_handler: AudioHandler = AudioHandler()
-        self.playing_track: int | None = False
+        self.playing: Track | None = None
         self.is_paused: bool = True
 
-        _ = state.update_selected_cue.connect(self.panic_all_tracks)
+        _ = state.selection.changed.connect(lambda _track: self.stop())
 
     def get_tracks(self):
         return self._tracks
 
-    def add_track(self, path: str, index: int):
-        if path in self._paths:
+    def add_track(self, path: str, index: int | None = None):
+        if any(track.get_path() == path for track in self._tracks):
             return
 
-        index = min(int(index), len(self._tracks))
-        self._tracks.insert(index, Track(path))
-        self._paths.insert(index, path)
-        CREATE_TRACK_SIGNAL.fire(path)
+        if index is None:
+            index = len(self._tracks)
+        index = max(0, min(index, len(self._tracks)))
 
-    def play_track(self, track_id: int):
-        if track_id > len(self._tracks):
-            return
+        track = Track(path)
+        self._tracks.insert(index, track)
+        TRACK_ADDED.fire(track, index)
 
-        track: Track = self._tracks[track_id]
-
-        if not track.initialised:
+    def play_track(self, track: Track):
+        if self.playing is not track:
             track.init_track(self._audio_handler)
 
         track.resume_track(self._audio_handler)
-        self.playing_track = track_id
+        self.playing = track
         self.is_paused = False
-
-    def panic_all_tracks(self, _=1):
-        self.playing_track = None
-        self.is_paused = True
-
-        state.update_selected_cue.fire(-1)
-        for track in self._tracks:
-            track.initialised = False
-
-        self._audio_handler.stop_media()
 
     def pause_track(self):
         self.is_paused = True
         self._audio_handler.pause_media()
+
+    def stop(self):
+        self.playing = None
+        self.is_paused = True
+        self._audio_handler.stop_media()
+
+    def panic_all_tracks(self):
+        state.selection.clear()
+        self.stop()
 
     def import_tracks(self):
         tracks = GetTrackFiles()
@@ -74,7 +70,7 @@ class TrackHandler:
         usable_tracks = tracks[0]
 
         for track in usable_tracks:
-            self.add_track(track, 0)
+            self.add_track(track)
 
 
 app_track_handler = TrackHandler()

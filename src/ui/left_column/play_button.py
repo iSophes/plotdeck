@@ -3,6 +3,7 @@ from PySide6.QtGui import QIcon, QPainter, QPixmap, Qt
 from PySide6.QtWidgets import QPushButton
 
 from core import state
+from tracks.track import Track
 from tracks.track_handler import app_track_handler
 
 
@@ -20,48 +21,45 @@ class PlayButton:
     def __init__(self):
         self.button: QPushButton = QPushButton()
         self.button.setEnabled(False)
-        self.button.setCheckable(True)
-        self.button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.button.setIconSize(QSize(128, 128))
+        self.button.setFixedSize(420, 175)  # make it a decent size
+        self.button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
-        self.playbackIcon: QIcon = QIcon()
+        self.playIcon: QIcon = QIcon()
+        self.pauseIcon: QIcon = QIcon()
 
-        self.playbackIcon.addPixmap(
+        self.playIcon.addPixmap(
             QPixmap("src/icons/play.svg"), QIcon.Mode.Normal, QIcon.State.Off
         )
-        self.playbackIcon.addPixmap(
+        self.playIcon.addPixmap(
             make_greyed(QPixmap("src/icons/play_disabled.svg")),
             QIcon.Mode.Disabled,
             QIcon.State.Off,
         )
-        self.playbackIcon.addPixmap(
+        self.pauseIcon.addPixmap(
             QPixmap("src/icons/pause.svg"), QIcon.Mode.Normal, QIcon.State.On
         )
 
-        self.button.setIcon(self.playbackIcon)
-        self.button.setFixedSize(420, 175)  # make it a decent size
-        self.button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.button.setIcon(self.playIcon)
         _ = self.button.clicked.connect(self.press_button)
         self._original_stylesheet: str = self.button.styleSheet()
 
-        if state.current_selected_cue != -1:
-            self.enable()
-        else:
-            self.disable()
+        self.update_enabled(state.selection.track)
+        _ = state.selection.changed.connect(self.update_enabled)
 
-        _ = state.update_selected_cue.connect(self.is_track_playing)
-
-    def is_track_playing(self, id: int):
-        if id != -1:
+    def update_enabled(self, track: Track | None):
+        if track is not None:
             self.enable()
         else:
             self.disable()
 
     def enable(self):
+        self.button.setIcon(self.playIcon)
         self.button.setEnabled(True)
         self.button.setStyleSheet(self._original_stylesheet)
 
     def disable(self):
+        self.button.setIcon(self.playIcon)
         self.button.setEnabled(False)
 
         self.button.clearFocus()
@@ -76,9 +74,13 @@ class PlayButton:
         self.button.setFocus()
         self.button.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
-        current_selection = state.current_selected_cue
-        if current_selection != -1:
-            if app_track_handler.is_paused:
-                app_track_handler.play_track(current_selection)
-            else:
-                app_track_handler.pause_track()
+        track = state.selection.track
+        if track is None:
+            return
+
+        if app_track_handler.is_paused:
+            self.button.setIcon(self.pauseIcon)
+            app_track_handler.play_track(track)
+        else:
+            self.button.setIcon(self.playIcon)
+            app_track_handler.pause_track()
