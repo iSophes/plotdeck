@@ -1,5 +1,3 @@
-from operator import indexOf
-
 from PySide6.QtCore import QMetaObject
 from PySide6.QtWidgets import (
     QFrame,
@@ -9,17 +7,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from core.signal import Signal
+from core import state
 from ui.left_column.track_column.track_option import TrackOption
-
-UPDATE_SELECTED_TRACK = Signal()
 
 
 class TrackFrame(QWidget):
     def __init__(self):
         super().__init__()
-
-        self.current_selection: int | None = None
 
         self.scroller: QScrollArea = QScrollArea()
         self.scroller.setWidgetResizable(True)
@@ -39,8 +33,8 @@ class TrackFrame(QWidget):
 
         self.scroller.setWidget(self.base_container)
 
-    def add_option(self, track: str, index: int | None = None):
-        using_index = len(self.options) if index is None else index
+    def add_option(self, track: str, index: int):
+        using_index = index == 0 and len(self.options) or index
         option = TrackOption(track, using_index % 2 == 0)
 
         clicked = option.button.clicked.connect(lambda: self.select_track(using_index))
@@ -55,10 +49,9 @@ class TrackFrame(QWidget):
         layout.insertWidget(using_index, option)
         layout.addStretch(1)
 
-    def select_track(self, track_index: int | None):
-        self.current_selection = track_index
+    def select_track(self, track_index: int):
+        print(track_index)
+        state.updateSelectedCue(track_index)
         for i, option in enumerate(self.options):
             is_index = i == track_index
             option.select_option(is_index)
-
-        UPDATE_SELECTED_TRACK.fire(track_index)

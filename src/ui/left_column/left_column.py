@@ -38,4 +38,4 @@ class LeftColumn(QWidget):
         self.play_button.disable()
 
     def create_track(self, path: str):
-        self.track_frame.add_option(path)
+        self.track_frame.add_option(path, 0)

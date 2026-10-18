@@ -2,6 +2,8 @@ from enum import Enum
 
 from PySide6.QtWidgets import QPushButton
 
+from tracks.track_handler import app_track_handler
+
 
 class PlaybackButtonType(
     Enum
@@ -22,4 +24,5 @@ class SquareButton:  # it makes a square button... what did you expect?
         _ = self.button.clicked.connect(self.click)
 
     def click(self):
-        pass
+        if self.type == PlaybackButtonType.PANIC:
+            app_track_handler.panic_all_tracks()

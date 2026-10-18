@@ -2,12 +2,11 @@ from PySide6.QtGui import QAction
 
 from core.main_window import Window
 from files.showfile import open_showfile
-from tracks.track_handler import TrackHandler
+from tracks.track_handler import app_track_handler
 
 
 class TopBar:
-    def __init__(self, window: Window, track_handler: TrackHandler):
-        self._track_handler: TrackHandler = track_handler
+    def __init__(self, window: Window):
         menu_bar = window.menuBar()
 
         menu_bar.setStyleSheet(
@@ -36,7 +35,7 @@ class TopBar:
         _ = load_showfile_action.triggered.connect(self.load_showfile)
 
     def import_track(self):
-        self._track_handler.import_tracks()
+        app_track_handler.import_tracks()
 
     def load_showfile(self):
-        _ = open_showfile(self._track_handler)
+        _ = open_showfile()

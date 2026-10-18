@@ -1,18 +1,15 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QWindow
-from PySide6.QtWidgets import QHBoxLayout, QStatusBar, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QStatusBar, QVBoxLayout, QWidget
 
 from core.main_window import Window
-from tracks.track_handler import TrackHandler
 from ui.bottom_bar import bottom_bar
 from ui.left_column import left_column
 from ui.top_bar.top_bar import TopBar
 
 
 class main_ui(QWidget):
-    def __init__(self, window: Window, track_handler: TrackHandler):
+    def __init__(self, window: Window):
         super().__init__()
-        self._top_bar: TopBar = TopBar(window, track_handler)
+        self._top_bar: TopBar = TopBar(window)
         self._left_column: left_column.LeftColumn = left_column.LeftColumn()
         self._window: Window = window
 

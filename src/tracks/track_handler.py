@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QFileDialog
 
+from core import state
 from core.audio import AudioHandler
 from core.signal import Signal
 from tracks.track import Track
@@ -20,32 +21,50 @@ class TrackHandler:
     def __init__(self):
         self._tracks: list[Track] = []
         self._paths: list[str] = []
-        self._selected_track_id: int = 0  # track id
         self._audio_handler: AudioHandler = AudioHandler()
+        self.playing_track: int | None = False
+        self.is_paused: bool = True
+
+        _ = state.update_selected_cue.connect(self.panic_all_tracks)
 
     def get_tracks(self):
         return self._tracks
 
-    def add_track(self, path: str, index: int | None = None):
+    def add_track(self, path: str, index: int):
         if path in self._paths:
             return
-
-        if not index:
-            index = len(self._tracks)
 
         index = min(int(index), len(self._tracks))
         self._tracks.insert(index, Track(path))
         self._paths.insert(index, path)
         CREATE_TRACK_SIGNAL.fire(path)
 
-        if index == 1:
-            self.play_track(1)
-
     def play_track(self, track_id: int):
         if track_id > len(self._tracks):
             return
 
-        self._tracks[track_id].play_track(self._audio_handler)
+        track: Track = self._tracks[track_id]
+
+        if not track.initialised:
+            track.init_track(self._audio_handler)
+
+        track.resume_track(self._audio_handler)
+        self.playing_track = track_id
+        self.is_paused = False
+
+    def panic_all_tracks(self, _=1):
+        self.playing_track = None
+        self.is_paused = True
+
+        state.update_selected_cue.fire(-1)
+        for track in self._tracks:
+            track.initialised = False
+
+        self._audio_handler.stop_media()
+
+    def pause_track(self):
+        self.is_paused = True
+        self._audio_handler.pause_media()
 
     def import_tracks(self):
         tracks = GetTrackFiles()
@@ -55,7 +74,7 @@ class TrackHandler:
         usable_tracks = tracks[0]
 
         for track in usable_tracks:
-            self.add_track(track)
+            self.add_track(track, 0)
 
-    def get_current_selection(self):
-        return self._selected_track_id
+
+app_track_handler = TrackHandler()
