@@ -6,6 +6,7 @@ from core.signal import Signal
 from tracks.track import Track
 
 TRACK_ADDED: Signal[[Track, int]] = Signal()
+TRACK_PLAYING: Signal[[]] = Signal()
 
 
 def GetTrackFiles():
@@ -46,12 +47,16 @@ class TrackHandler:
             track.init_track(self._audio_handler)
 
         track.resume_track(self._audio_handler)
+        TRACK_PLAYING.fire()
         self.playing = track
         self.is_paused = False
 
     def pause_track(self):
         self.is_paused = True
         self._audio_handler.pause_media()
+
+    def restart(self):
+        self._audio_handler.restart_media()
 
     def stop(self):
         self.playing = None

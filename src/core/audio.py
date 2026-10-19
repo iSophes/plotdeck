@@ -20,3 +20,6 @@ class AudioHandler:
     def stop_media(self):
         self._player.stop()
         self._player.set_media(None)
+
+    def restart_media(self):
+        self._player.set_position(0)

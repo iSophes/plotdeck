@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QPushButton
 
 from core import state
 from tracks.track import Track
-from tracks.track_handler import app_track_handler
+from tracks.track_handler import TRACK_ADDED, TRACK_PLAYING, app_track_handler
 
 
 def make_greyed(pixmap):
@@ -47,6 +47,11 @@ class PlayButton:
         self.update_enabled(state.selection.track)
         _ = state.selection.changed.connect(self.update_enabled)
 
+        _ = TRACK_PLAYING.connect(self.update_playing)
+
+    def update_playing(self):
+        self.button.setIcon(self.pauseIcon)
+
     def update_enabled(self, track: Track | None):
         if track is not None:
             self.enable()
@@ -79,7 +84,6 @@ class PlayButton:
             return
 
         if app_track_handler.is_paused:
-            self.button.setIcon(self.pauseIcon)
             app_track_handler.play_track(track)
         else:
             self.button.setIcon(self.playIcon)

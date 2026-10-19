@@ -62,9 +62,9 @@ class plotExplorer(QWidget):
                 )
                 or ""
             )
-            button = QPushButton(text="")
+            button = QPushButton("")
             button.setFixedHeight(box_height)
-            button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            button.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             button.setStyleSheet(
                 f"QPushButton {{ font-size: 10pt; color: #ffffff; background-color: {'#495158' if even else '#343c44'}; border-width: 0; }} {shouldHover and 'QPushButton:hover { background-color: #8697a4; }'}"
             )
