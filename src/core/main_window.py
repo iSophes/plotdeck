@@ -17,5 +17,27 @@ class Window(QtWidgets.QMainWindow):
         )  # Resize the window to default width and height
         self.setWindowTitle("PlotDeck")  # Set window title to project name
         apply_stylesheet(app, theme="dark_teal.xml")  # Give it a material theme
+
+        app.setStyleSheet(
+            app.styleSheet()
+            + """
+            QLineEdit:focus {
+                color: #ffffff
+            }
+            QTextEdit, QPlainTextEdit {
+                border: none;
+                border-bottom: 2px solid #5a5a5a;
+                border-radius: 0px;
+                padding-left: 12px;
+                color: #ffffff;
+            }
+
+            QTextEdit:focus, QPlainTextEdit:focus {
+                border-bottom: 2px solid #1de9b6;
+                color: #ffffff
+            }
+        """
+        )
+
         self.show()  # Show our window
         self.showMaximized()  # Maximise it
