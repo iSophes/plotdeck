@@ -20,4 +20,6 @@ class NameBox(QLabel):
 
     def unselect_file(self):
         self.setText("File Name")
-        self.setStyleSheet(self.styleSheet() + f"""QLabel {{color: #6E7072; }} """)
+        self.setStyleSheet(
+            self.styleSheet() + f"""QLabel {{color: rgba(255,255,255,0.5); }} """
+        )
