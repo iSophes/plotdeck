@@ -4,20 +4,32 @@ import json
 from PySide6.QtWidgets import QFileDialog
 
 from core.error_popup import error_popup
+from core.signal import Signal
 from tracks.track_handler import app_track_handler
 
-LOADED_FILE_DIRECTORY = ""
+loaded_file_directory: str = ""
 
 JSON_ENCODER = json.JSONEncoder()
+FILE_LOADED = Signal()
 
 
 def get_showfile():
-    return QFileDialog.getOpenFileNames(
+    names = QFileDialog.getOpenFileName(
         None,
         "Import Files",
         "",
         "Plotdeck Files (*.plotdeck)",
     )
+
+    return names[0]
+
+
+def save_prompt():
+    dialog = QFileDialog.getSaveFileName(
+        None, "Save File As", "", "Plotdeck Files (*.plotdeck)"
+    )[0]
+
+    return dialog
 
 
 def handle_decoded_file(data):
@@ -42,23 +54,23 @@ def handle_decoded_file(data):
 
 
 def open_showfile():
-    showfile, _ = get_showfile()
-    if not showfile:
+    global loaded_file_directory
+
+    showfile = get_showfile()
+    if showfile == "":
         return False
 
-    for file in showfile:
-        with open(file) as f:
-            try:
-                loaded = json.load(f)
-                LOADED_FILE_DIRECTORY = showfile
-                return handle_decoded_file(loaded)
-
-            except json.JSONDecodeError:
-                error_popup("Failed to decode file!")
-                return False
-
-            except (OSError, UnicodeDecodeError) as e:
-                error_popup(f"Failed to read file: {e}")
+    with open(showfile) as f:
+        try:
+            loaded = json.load(f)
+            loaded_file_directory = showfile
+            FILE_LOADED.fire()
+            return handle_decoded_file(loaded)
+        except json.JSONDecodeError:
+            error_popup("Failed to decode file!")
+            return False
+        except (OSError, UnicodeDecodeError) as e:
+            error_popup(f"Failed to read file: {e}")
 
 
 def encode_tracks():
@@ -79,13 +91,27 @@ def encode_tracks():
     return JSON_ENCODER.encode(dict)
 
 
-def save_showfile():
+def save_showfile(save_as: bool):
+    global loaded_file_directory
+
     encoded = encode_tracks()
+    file_to_save = loaded_file_directory
 
-    print(encoded)
+    if loaded_file_directory == "" or save_as == True:
+        file_to_save = save_prompt()
 
-    if LOADED_FILE_DIRECTORY == "":
-        # prompt to save a new file
+    if file_to_save == "":
         return
 
-    # save new file
+    if file_to_save.find(".plotdeck") == -1:
+        file_to_save = file_to_save + ".plotdeck"
+
+    with open(
+        file_to_save,
+        "w",
+    ) as file:
+        _ = file.write(encoded)
+
+    if loaded_file_directory == "":
+        loaded_file_directory = file_to_save
+        FILE_LOADED.fire()
