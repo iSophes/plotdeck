@@ -21,15 +21,13 @@ class Window(QtWidgets.QMainWindow):
         app.setStyleSheet(
             app.styleSheet()
             + """
-            QLineEdit:focus {
-                color: #ffffff
-            }
             QTextEdit, QPlainTextEdit {
                 border: none;
                 border-bottom: 2px solid #5a5a5a;
                 border-radius: 0px;
                 padding-left: 12px;
                 color: #ffffff;
+                background: #232629;
             }
 
             QTextEdit:focus, QPlainTextEdit:focus {

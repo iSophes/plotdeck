@@ -1,5 +1,8 @@
 from PySide6.QtWidgets import QLabel
 
+from core import state
+from tracks.track import Track
+
 
 class NameBox(QLabel):
     def __init__(self):
@@ -18,8 +21,20 @@ class NameBox(QLabel):
 
         self.setFixedHeight(50)
 
+        _ = state.selection.changed.connect(self.selection_changed)
+
+    def selection_changed(self, track: Track | None):
+        if track is None:
+            self.unselect_file()
+        else:
+            self.select_file(track.name)
+
     def unselect_file(self):
         self.setText("File Name")
         self.setStyleSheet(
-            self.styleSheet() + f"""QLabel {{color: rgba(255,255,255,0.5); }} """
+            self.styleSheet() + "QLabel {color: rgba(255,255,255,0.5); } "
         )
+
+    def select_file(self, file: str):
+        self.setText(file)
+        self.setStyleSheet(self.styleSheet() + "QLabel {color: rgb(255,255,255); } ")
