@@ -115,3 +115,11 @@ def save_showfile(save_as: bool):
     if loaded_file_directory == "":
         loaded_file_directory = file_to_save
         FILE_LOADED.fire()
+
+
+def compare_showfiles() -> bool:  # returns true if same, returns false if not
+    if loaded_file_directory == "":
+        return len(app_track_handler.get_tracks()) == 0
+
+    with open(loaded_file_directory) as f:
+        return f == encode_tracks()

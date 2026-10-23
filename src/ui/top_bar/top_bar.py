@@ -1,8 +1,10 @@
 from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QMessageBox
 
+from core import error_popup
 from core.main_window import Window
 from files import showfile
-from files.showfile import open_showfile
+from files.showfile import loaded_file_directory, open_showfile, save_showfile
 from tracks.track_handler import app_track_handler
 
 
@@ -47,6 +49,14 @@ class TopBar:
         app_track_handler.import_tracks()
 
     def load_showfile(self):
+        if showfile.compare_showfiles() == False:
+            popup = error_popup.unsaved_popup()
+            if popup == QMessageBox.StandardButton.Cancel:
+                return
+
+            if popup == QMessageBox.StandardButton.Save:
+                showfile.save_showfile(loaded_file_directory == "")
+
         _ = open_showfile()
 
     def save_showfile(self):

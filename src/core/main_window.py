@@ -34,6 +34,10 @@ class Window(QtWidgets.QMainWindow):
                 border-bottom: 2px solid #1de9b6;
                 color: #ffffff
             }
+
+            QPlainTextEdit:disabled {
+                background: #232629
+            }
         """
         )
 
